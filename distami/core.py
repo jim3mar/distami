@@ -25,8 +25,12 @@ log = logging.getLogger(__name__)
 
 
 class Distami(object):
-    def __init__(self, ami_id, ami_region):
+    def __init__(self, ami_id, ami_region, ami_tags = None):
         self._ami_id = ami_id
+        if ami_tags is not None:
+            self._ami_tags = ami_tags.split(",")
+        else:
+            self._ami_tags = None
         self._ami_region = ami_region
         
         log.info("Looking for AMI %s in region %s", self._ami_id, self._ami_region)
@@ -36,7 +40,8 @@ class Distami(object):
             log.error('Could not connect to region %s' % self._ami_region)
             log.critical('No AWS credentials found. To configure Boto, please read: http://boto.readthedocs.org/en/latest/boto_config_tut.html')
             raise DistamiException('No AWS credentials found.')            
-        self._image = utils.wait_for_ami_to_be_available(self._conn, self._ami_id)
+        self._image = utils.wait_for_ami_to_be_available(self._conn, self._ami_id, self._ami_tags)
+        self._ami_id = self._image.id
         log.debug('AMI details: %s', vars(self._image))
         
         # Get current launch permissions
@@ -149,7 +154,6 @@ class Distami(object):
 
         log.info('Copy to %s complete', region)
         return copied_ami_id
-
 
 
 class Logging(object):

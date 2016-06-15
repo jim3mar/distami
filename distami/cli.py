@@ -41,7 +41,7 @@ def copy(param_array):
     to_region = param_array[1]
     args = param_array[2]
     copied_ami_id = distami.copy_to_region(to_region)
-    ami_cp = Distami(copied_ami_id, to_region)
+    ami_cp = Distami(copied_ami_id, to_region, args.ami_tags)
 
     if args.non_public:
         distami.make_ami_non_public()
@@ -57,13 +57,15 @@ def copy(param_array):
 
 def run():
     parser = argparse.ArgumentParser(description='Distributes an AMI by copying it to one, many, or all AWS regions, and by optionally making the AMIs and Snapshots public or shared with specific AWS Accounts.')
-    parser.add_argument('ami_id', metavar='AMI_ID', 
+    parser.add_argument('--ami_id', metavar='AMI_ID', default=None,
                         help='the source AMI ID to distribute. E.g. ami-1234abcd')
+    parser.add_argument('--ami_tags', metavar='AMI_TAGs', default=None,
+                        help='the source AMI Tags to distribute. E.g. Name:Linux,Version:1')
     parser.add_argument('--region', metavar='REGION', 
                         help='the region the AMI is in (default is current region of EC2 instance this is running on). E.g. us-east-1')
     parser.add_argument('--to', metavar='REGIONS', 
                         help='comma-separated list of regions to copy the AMI to. The default is all regions. Specify "none" to prevent copying to other regions. E.g. us-east-1,us-west-1,us-west-2')
-    parser.add_argument('--non-public', action='store_true', default=False, 
+    parser.add_argument('--non-public', action='store_true', default=True, 
                         help='Copies the AMIs to other regions, but does not make the AMIs or snapshots public. Bad karma, but good for AMIs that need to be private/internal only')
     parser.add_argument('--accounts', metavar='AWS_ACCOUNT_IDs', 
                         help='comma-separated list of AWS Account IDs to share an AMI with. Assumes --non-public. Specify --to=none to share without copying.')
@@ -98,7 +100,7 @@ def run():
         log.debug("Running in region: %s", ami_region)
 
     try:
-        distami = Distami(args.ami_id, ami_region)
+        distami = Distami(args.ami_id, ami_region, args.ami_tags)
         if not args.non_public:
             distami.make_ami_public()
             distami.make_snapshot_public()

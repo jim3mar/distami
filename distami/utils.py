@@ -22,17 +22,26 @@ from distami.exceptions import *
 log = logging.getLogger(__name__)
 
 
-def get_ami(conn, ami_id):
+def get_ami(conn, ami_id, ami_tags = None):
     ''' Gets a single AMI as a boto.ec2.image.Image object '''
     
     attempts = 0
     max_attempts = 5
+    image_filters = {}
+    if ami_tags is not None:
+        for tag in ami_tags:
+            kv = tag.split(":")
+            if len(kv) == 2:
+                image_filters["tag:" + kv[0]] = kv[1]
+    else:
+        image_filters = None
+
     while (attempts < max_attempts):
         try:
             attempts += 1
-            images = conn.get_all_images(ami_id)
+            images = conn.get_all_images(ami_id, filters=image_filters)
         except boto.exception.EC2ResponseError:
-            msg = "Could not find AMI '%s' in region '%s'" % (ami_id, conn.region.name)
+            msg = "Could not find AMI '%s' with tags %s in region '%s'" % (ami_id, ami_tags, conn.region.name)
             if attempts < max_attempts:
                 # The API call to initiate an AMI copy is not blocking, so the
                 # copied AMI may not be available right away
@@ -84,16 +93,16 @@ def get_regions_to_copy_to(source_region):
     return regions
 
 
-def wait_for_ami_to_be_available(conn, ami_id):
+def wait_for_ami_to_be_available(conn, ami_id, ami_tags = None):
     ''' Blocking wait until the AMI is available '''
     
-    ami = get_ami(conn, ami_id)
+    ami = get_ami(conn, ami_id, ami_tags)
     log.debug('AMI details: %s', vars(ami))
     
     while ami.state != 'available':
         log.info("%s in %s not available, waiting...", ami_id, conn.region.name)
         time.sleep(30)
-        ami = get_ami(conn, ami_id)
+        ami = get_ami(conn, ami_id, ami_tags)
         
         if ami.state == 'failed':
             msg = "AMI '%s' is in a failed state and will never be available" % ami_id
