@@ -5,11 +5,11 @@ DistAMI
    :target: https://travis-ci.org/Answers4AWS/distami
    :alt: Build Status
 
-.. image:: https://pypip.in/d/distami/badge.png
+.. image:: https://img.shields.io/pypi/dm/distami.svg
    :target: https://pypi.python.org/pypi/distami
    :alt: PyPI Downloads
 
-.. image:: https://pypip.in/v/distami/badge.png
+.. image:: https://img.shields.io/pypi/v/distami.svg
    :target: https://pypi.python.org/pypi/distami
    :alt: PyPI Version
 
@@ -20,18 +20,16 @@ Usage
 
 ::
 
-    usage: distami [-h] [--region REGION] [--to REGIONS] [--non-public]
+    usage: distami [-h] [--ami_id AMI_ID] [--ami_tags AMI_TAGs] [--region REGION] [--to REGIONS] [--non-public]
                    [--accounts AWS_ACCOUNT_IDs] [-p] [-v] [--version]
-                   AMI_ID
 
     Distributes an AMI by copying it to one, many, or all AWS regions, and by
     optionally making the AMIs and Snapshots public.
 
-    positional arguments:
-      AMI_ID                the source AMI ID to distribute. E.g. ami-1234abcd
-
     optional arguments:
       -h, --help            show this help message and exit
+      --ami_id AMI_ID       the source AMI ID to distribute. E.g. ami-1234abcd
+      --ami_tags AMI_TAGs   the source AMI Tags to distribute. E.g. Name:Linux,Version:1
       --region REGION       the region the AMI is in (default is current region of
                             EC2 instance this is running on). E.g. us-east-1
       --to REGIONS          comma-separated list of regions to copy the AMI to.
@@ -68,25 +66,25 @@ Aminator:
 
 ::
 
-    distami -p ami-abcd1234
+    distami -p --ami_id ami-abcd1234
 
 Copy AMI in ``us-east-1`` to ``us-west-1``
 
 ::
 
-    distami --region us-east-1 ami-abcd1234 --to us-west-1
+    distami --region us-east-1 --ami_id ami-abcd1234 --to us-west-1
 
 Copy an AMI in ``eu-west-1`` to ``us-west-1`` and ``us-west-2``, but do not make the AMI or its copies public
 
 ::
 
-    distami --region eu-west-1 ami-abcd1234 --to us-west-1,us-west-2 --non-public
+    distami --region eu-west-1 --ami_id ami-abcd1234 --to us-west-1,us-west-2 --non-public
 
 Share an AMI in ``us-east-1`` with the AWS account IDs 123412341234 and 987698769876. Do not copy to other regions and do not make public.
 
 ::
 
-    distami --region=us-east-1 ami-abcd1234 --to=none --accounts=123412341234,987698769876
+    distami --region=us-east-1 --ami_id ami-abcd1234 --to=none --accounts=123412341234,987698769876
       
 
 Installation
