@@ -1,7 +1,7 @@
 DistAMI
 =======
 
-.. image:: https://travis-ci.org/Answers4AWS/distami.png?branch=master
+.. image:: https://img.shields.io/travis/Answers4AWS/distami/master.svg
    :target: https://travis-ci.org/Answers4AWS/distami
    :alt: Build Status
 
