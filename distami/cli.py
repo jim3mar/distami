@@ -57,10 +57,10 @@ def copy(param_array):
 
 def run():
     parser = argparse.ArgumentParser(description='Distributes an AMI by copying it to one, many, or all AWS regions, and by optionally making the AMIs and Snapshots public or shared with specific AWS Accounts.')
-    parser.add_argument('--ami_id', metavar='AMI_ID', default=None,
-                        help='the source AMI ID to distribute. E.g. ami-1234abcd')
-    parser.add_argument('--ami_tags', metavar='AMI_TAGs', default=None,
-                        help='the source AMI Tags to distribute. E.g. Name:Linux,Version:1')
+    parser.add_argument('ami_id', metavar='AMI_ID', 
+                        help='the source AMI ID to distribute. E.g. ami-1234abcd. When be set to "-", mean to use --ami-tags')
+    parser.add_argument('--ami-tags', metavar='AMI_TAGs', default=None,
+                        help='the source AMI Tags to distribute. E.g. Name:Linux,Version:1. If use this argument, the ami_id must be set to "-"')
     parser.add_argument('--region', metavar='REGION', 
                         help='the region the AMI is in (default is current region of EC2 instance this is running on). E.g. us-east-1')
     parser.add_argument('--to', metavar='REGIONS', 
@@ -100,6 +100,7 @@ def run():
         log.debug("Running in region: %s", ami_region)
 
     try:
+        args.ami_id = None if args.ami_id == "-" else args.ami_id
         distami = Distami(args.ami_id, ami_region, args.ami_tags)
         if not args.non_public:
             distami.make_ami_public()
